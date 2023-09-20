@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.4.0-beta.0/css/lightgallery-bundle.min.css" />
+    <title><%= userInfo.username.slice(1) %>'s Album</title>
+</head>
+
+<body>
+    <%- include("../../components/header", isLoggedIn, user) %>
+    <main>
+        <%- include("../../components/nav") %>
+        <div class="card-photos">
+            <h1>Recent Picture / Videos of <%= album.album_name %> </h1>
+            <div class="showpictures">
+                <% files.forEach(item => { %>
+                <% if (item.file_type.match(/(png|jpeg|jpg)/)) { %>
+                <div class="showbox" data-src="/images/<%= item.file_url %>">
+                    <img src="/images/<%= item.file_url %>" alt="">
+                </div>
+                <% } else if (item.file_type.match(/(mp4|mkv)/)) { %>
+                <a data-lg-size="1280-720"
+                    data-video='{"source": [{"src":"/images/<%= item.file_url %>", "type":"video/mp4"}], "attributes": {"preload": false, "controls": true}}'
+                    data-poster="/images/<%= item.thumb_url %>">
+                    <div class="showbox">
+                        <img class="img-responsive" src="/images/<%= item.thumb_url %>" />
+                    </div>
+                </a>
+                <% } else if(item.file_type.match(/(mpeg)/)) { %>
+                <a data-lg-size="1280-720"
+                    data-video='{"source": [{"src":"/images/<%= item.file_url %> ", "type":"video/mp4"}], "attributes": {"preload": false, "controls": true}}'
+                    data-poster="/images/music.jpg">
+                    <div class="showbox">
+                        <img class="img-responsive" src="/images/music.jpg" />
+                    </div>
+                </a>
+                <% } %>
+                <% }) %>
+            </div>
+            <form action="/file/<%= albumId %>" method="POST" enctype="multipart/form-data" role="form">
+                <label for="fileUpload" class="file-upload"><i class="fas fa-image icon-image"></i>&nbsp;&nbsp;Add
+                    Photos/ Videos</label>
+                <input id="fileUpload" type="file" name="fileUpload" class="insertfile" onchange="submitForm();" 
+                    />
+            </form>
+        </div>
+    </main>
+    <%- include("../../components/scripts_links.ejs") %>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
+    <script src="https://malsup.github.io/jquery.form.js"></script>
+    <script>
+
+        lightGallery(document.querySelector('.showpictures'), {
+            plugins: [lgZoom, lgThumbnail, lgAutoplay, lgComment, lgFullscreen, lgRotate, lgHash, lgVideo],
+            mode: 'lg-fade',
+        });
+
+        function submitForm() {
+            $('form').submit();
+        }
+
+    </script>
+</body>
+
+</html>

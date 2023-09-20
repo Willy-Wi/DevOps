@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/css/style.css" rel="stylesheet" type="text/css">
+    <title>Edit Profile</title>
+</head>
+
+<body>
+    <%- include("../../components/header", isLoggedIn, user) %>
+    <main>
+        <%- include("../../components/nav") %>
+        <div class="center">
+            <form action="/users/<%= userInfo.user_id %>/edit" method="post" class="users-form"
+                enctype="multipart/form-data">
+                <h2>Edit Profile</h2>
+                <label for="username">Username</label>
+                <input type="text" autocomplete="off" placeholder="Username" name="username" id="username" required
+                    value="<%= userInfo.username.slice(1) %>" />
+                <% if (err.errUser) { %>
+                <p class="users-form__error"><%= err.errUser %> </p>
+                <% } %>
+                <label for="name">Full Name</label>
+                <input type="text" autocomplete="off" placeholder="Full Name" name="name" id="name" required
+                    value="<%= userInfo.name %>" />
+                <label for="email">Email</label>
+                <input type="text" autocomplete="off" placeholder="Email" name="email" id="email" required
+                    value="<%= userInfo.email %>">
+                <% if (err.errEmail) { %>
+                <p class="users-form__error"><%= err.errEmail %> </p>
+                <% } %>
+                <input type="file" name="myImage" id="myImage" hidden />
+                <div class="upload__button">
+                    <label for="myImage"><i class="fas fa-plus"></i> Choose a Photo</label>
+                    <span id="custom-text">No file chosen, yet. </span>
+                </div>
+                <button type="submit">Update</button>
+            </form>
+        </div>
+    </main>
+    <%- include("../../components/scripts_links") %>
+    <script>
+        const fileUpload = document.getElementById("myImage");
+        const customTxt = document.getElementById("custom-text");
+        fileUpload.addEventListener("change", () => {
+            if (fileUpload.value) {
+                customTxt.textContent = fileUpload.value.match(/[\/\\]([\w\d\s\.\-\(\)]+)$/)[1];
+            } else {
+                customTxt.textContent = "No file chosen, yet.";
+            }
+        })
+    </script>
+</body>
+
+</html>

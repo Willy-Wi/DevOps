@@ -1,0 +1,36 @@
+<header class="header">
+    <h2><a href="/">Pop<span>sicle</span></a></h2>
+    <form action="/search" class="header__search">
+        <button type="submit"><i class="fas fa-search"></i></button>
+
+        <% if (!(typeof search == 'string' && search)) { %>
+        <% search = "" %>
+        <% } %>
+
+        <input type="text" name="search" id="search" placeholder="Search for creators, inspirations, projects..."
+            value="<%= search  %>">
+    </form>
+    <div class="header__dropdown">
+        <div class="image">
+            <% if (isLoggedIn) { %>
+            <img src="/../images/<%= user.profile_image %>.png" alt="" width=50>
+            <% } else { %>
+            <img src="/../images/0.png" alt="" width=50>
+            <% } %>
+            <div class="overlay" data-dropdown-toggle></div>
+        </div>
+        <div class="header__menu">
+            <% if (isLoggedIn) { %>
+            <a href="/users/<%= user.user_id %>">Profile</a>
+            <a href="/users/<%= user.user_id  %>/edit">Settings</a>
+            <a href="/auth/logout">Logout</a>
+            <% } else { %>
+            <a href="/auth/login">Login</a>
+            <a href="/auth/register">Register</a>
+            <% } %>
+            <a id="dark-mode-toggle" class="dark-mode-toggle">Switch Theme</a>
+        </div>
+    </div>
+</header>
+<script src="/../js/dropdownMenu.js"></script>
+<script src="/../js/darkmode.js"></script>

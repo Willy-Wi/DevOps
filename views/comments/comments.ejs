@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/../css/style.css">
+    <title>Posts Comments</title>
+    <style>
+        .dropdown__comment {
+            position: relative;
+        }
+
+        .dropdown__menu {
+            position: absolute;
+            left: calc(100% + 2rem);
+            top: calc(100% - 1.4rem);
+            background-color: var(--white);
+            box-shadow: var(--box-shadow);
+            border-radius: 3px;
+            transition: 0.2s;
+            display: grid;
+            place-items: center;
+            opacity: 0;
+            pointer-events: none;
+            -webkit-transform: translateX(-2rem);
+            transform: translateX(-2rem);
+        }
+
+        .dropdown__menu a {
+            width: 100%;
+            color: #8c8c8c;
+            font-weight: 500;
+            text-align: center;
+            padding: 0.6rem 0.8rem;
+            font-family: var(--font);
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .dropdown__menu a:first-child {
+            border: 3px 3px 0 0;
+        }
+
+        .dropdown__menu a:last-child {
+            border: 0 0 3px 3px;
+        }
+
+        .dropdown__menu a:hover,
+        .dropdown__menu a:focus-visible {
+            background-color: rgba(118, 97, 255, 0.1);
+            color: var(--purple);
+        }
+
+        .commment__menu--active {
+            pointer-events: auto;
+            opacity: 1;
+            -webkit-transform: translateX(0);
+            transform: translateX(0);
+        }
+
+        .close {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <%- include("../../components/header", isLoggedIn, user) %>
+    <main>
+        <%- include("../../components/nav") %>
+        <div class="card__list">
+            <% if (typeof likes == 'object' && likes) { %>
+            <% let filtered = likes.filter((v) => { return v.post_id === post.post_id }) %>
+            <% if (filtered.length > 0) { %>
+            <% status = "Unlike" %>
+            <% } else { %>
+            <% status = "Like" %>
+            <% } %>
+            <% } else { %>
+            <% status = "Like" %>
+            <% } %>
+
+            <div class="card card__post">
+                <div class="card__like">
+
+                    <% if (isLoggedIn) { %>
+                    <% if (status === "Unlike") { %>
+                    <i class="fas fa-heart active" onclick="actOnPost(event)" data-post-id="<%= post.post_id %>"
+                        data-post-status="<%= status %>"></i>
+                    <% } else { %>
+                    <i class="far fa-heart" onclick="actOnPost(event)" data-post-id="<%= post.post_id %>"
+                        data-post-status="<%= status %>"></i>
+                    <% } %>
+                    <% } else { %>
+                    <a href="/auth/login"><i class="far fa-heart"></i></a>
+                    <% } %>
+
+                    <p id="likes-count-<%= post.post_id %>"><%= post.likes %></p>
+                </div>
+
+                <div class="card__content">
+                    <div class="card__header">
+                        <h3><%= post.post_title %> </h3>
+                        <div>
+                            <a href="/posts/report/<%= post.post_id %>"><i class="fas fa-flag post__flag"
+                                    role="button"></i></a>
+                            <% if (isLoggedIn) { %>
+                            <% if (post.user_id === user.user_id) { %>
+                            <a href="/posts/<%= post.post_id %>/<%= post.user_id %>/edit"><i class="fas fa-edit"
+                                    role="button"></i></a>
+                            <i class="far fa-trash-alt" role="button"
+                                onclick=<%='del(' + post.post_id + ',' + post.user_id +')' %>></i>
+                            <% } %>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <% if (post.post_file) { %>
+                    <div class="card__postingan">
+                        <img src="../images/imgPost/<%= post.post_file %>" id="postingan">
+                    </div>
+                    <% } %>
+                    <p><%= post.post_content %></p>
+                    <hr>
+                    <div class="card__info">
+                        <img src="../images/<%= post.profile_image %>.png" alt="" width="40">
+                        <p>Posted by <a href="/users/<%= post.user_id %>"><%= post.username %></a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="card card__reply">
+                <form class="card__reply--flex" action="/posts/<%= post.post_id %>/create_comment" method="post">
+                    <textarea name="comment" id="comment" rows="1" placeholder="Reply..." required></textarea>
+                    <button type="submit">Reply</button>
+                </form>
+                <% if (typeof error == 'string' && error) { %>
+                <p><%= error %> </p>
+                <% } %>
+            </div>
+            <% comments.forEach((comment) => { %>
+            <div class="card">
+                <div class="card__content card__content--small">
+                    <div class="card__header">
+                        <p><%= comment.comment_content %></p>
+                        <div class="dropdown__comment">
+                            <% if (isLoggedIn) { %>
+                            <% if (comment.user_id === user.user_id) { %>
+                            <i class="fa fa-ellipsis-v show-button" role="button"
+                                onclick=<%='show(' +comment.comment_id+')' %>>
+                            </i>
+                            <% } %>
+                            <% } %>
+                            <div class="dropdown__menu" id="dropdown-<%= comment.comment_id %>">
+                                <a
+                                    href="/comment/edit/<%= comment.comment_id %>/<%= comment.post_id %>/<%= comment.user_id %>">Edit</a>
+                                <a
+                                    onclick=<%='del_comment(' +comment.comment_id+ ',' + comment.user_id + ')'%>>Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <hr>
+                        <div class="card__info card__info--small">
+                            <p>Comment by <a href="/users/<%= comment.user_id %>"><%= comment.username %></a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <% }) %>
+        </div>
+    </main>
+    <%- include("../../components/scripts_links.ejs") %>
+    <script>
+        let del = (id, user_id) => {
+            axios.delete('/posts/' + id + '/' + user_id)
+                .then((result) => {
+                    location.href = '/';
+                }).catch((err) => {
+                    alert('error ' + err)
+                });
+        };
+        let del_comment = (id, user_id) => {
+            axios.delete('/comment/' + id + '/' + user_id).then((result) => {
+                location.reload();
+            }).catch((err) => {
+                alert('error ' + err);
+            });
+        }
+        let show = (id) => {
+            let dropdown = document.getElementById("dropdown-" + id);
+            dropdown.classList.toggle("commment__menu--active");
+            window.onclick = function (event) {
+                if (!event.target.matches(".show-button")) {
+                    dropdown.classList.remove("commment__menu--active");
+                }
+            }
+        }
+
+    </script>
+</body>
+
+</html>
